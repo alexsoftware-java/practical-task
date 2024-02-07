@@ -2,7 +2,6 @@ package io.rateboard.reservationapi.dto;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
@@ -18,7 +17,6 @@ public class ReservationRequestDto {
     @Schema(description = "payload", example = """
             {"reservationDate": "2024-04-01T10:00:00Z", "numberOfAdults": 2, "numberOfChildren": 0, "roomType": "double"}
             """)
-    @NotBlank(message = "payload cannot be empty")
     JsonNode payload;
 
     @Schema(description = "updatedAt in source system", example = "2024-02-01T10:01:01.301Z")
