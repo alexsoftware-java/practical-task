@@ -30,6 +30,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-amqp'
 	// Http logging
 	implementation 'org.zalando:logbook-spring-boot-starter:3.7.2'
+	// Tracing
+	implementation 'org.springframework.boot:spring-cloud-starter-sleuth'
 	// OpenAPI docs
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
 	// Lombok
