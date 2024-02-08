@@ -1,36 +1,39 @@
 package io.rateboard.reservationapi.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.rateboard.reservationapi.dto.ReservationUserRequestDto;
+import io.rateboard.reservationapi.dto.ReservationResponseDto;
+import io.rateboard.reservationapi.exception.WrongApiKeyException;
+import io.rateboard.reservationapi.service.ReservationService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import io.rateboard.reservationapi.exception.WrongApiKeyException;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.time.Instant;
-
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
-@SpringBootTest(properties = {"api.key=somekey"})
+@WebMvcTest(value = ReservationControllerImpl.class, properties = {"api.key=somekey"})
 @AutoConfigureMockMvc
 class ReservationControllerTest {
 
     @Autowired
     MockMvc mockMvc;
 
-    @Autowired
-    ReservationControllerImpl controller;
+    @MockBean
+    ReservationService reservationService;
 
     @Test
     void TestControllerApiOk() throws Exception {
+        //given
+        when(reservationService.sendReservation(any())).thenReturn(ReservationResponseDto.builder()
+                .messageId("123")
+                .build());
+        // when
         mockMvc.perform(post("/api/v1/reservation")
                         .header("Authorization", "somekey")
                         .contentType("application/json")
@@ -45,9 +48,11 @@ class ReservationControllerTest {
                                     },
                                     "updatedAt": "2024-02-01T10:00:00Z"
                                 }"""))
+                // then
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().json("{\"errorCode\": null, \"errorMessage\": null}"))
                 .andExpect(MockMvcResultMatchers.content().contentType("application/json"));
+        verify(reservationService).sendReservation(any());
     }
 
     @Test
@@ -72,23 +77,6 @@ class ReservationControllerTest {
                 .contentType("application/json")
                 .content("{}"))
                 .andExpect(result -> assertInstanceOf(WrongApiKeyException.class, result.getResolvedException()));
-    }
-
-    @Test
-    void TestControllerMethod() throws JsonProcessingException {
-        // given
-        var request = new ReservationUserRequestDto();
-        request.setReservationId("1234");
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode jsonNode = objectMapper.readTree("{\"reservationDate\": \"2024-04-01T10:00:00Z\", \"numberOfAdults\": 2, \"numberOfChildren\": 0, \"roomType\": \"double\"}");
-        request.setPayload(jsonNode);
-        request.setUpdatedAt(Instant.ofEpochMilli(1707326577));
-        // when
-        var result = controller.sendReservation("somekey", request);
-        // then
-        assertNotNull(result);
-        assertNull(result.errorCode());
-        assertNull(result.errorMessage());
     }
 
 }

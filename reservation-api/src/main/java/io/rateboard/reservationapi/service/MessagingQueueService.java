@@ -15,11 +15,12 @@ public class MessagingQueueService {
     private final RabbitTemplate rabbitTemplate;
 
     public void sendToQueue(String messageId, ReservationUserRequestDto request) throws AmqpException {
-        rabbitTemplate.convertAndSend(RESERVATION_QUEUE, ReservationQueueRequestDto.builder()
-                .messageId(messageId)
-                .payload(request.getPayload())
-                .reservationId(request.getReservationId())
-                .updatedAt(request.getUpdatedAt()));
+        var reservationQueueRequestDto = new ReservationQueueRequestDto();
+        reservationQueueRequestDto.setMessageId(messageId);
+        reservationQueueRequestDto.setReservationId(request.getReservationId());
+        reservationQueueRequestDto.setPayload(request.getPayload());
+        reservationQueueRequestDto.setUpdatedAt(request.getUpdatedAt());
+        rabbitTemplate.convertAndSend(RESERVATION_QUEUE, reservationQueueRequestDto);
     }
 
 }
