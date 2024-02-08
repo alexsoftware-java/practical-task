@@ -1,0 +1,42 @@
+version: '3.3'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    hostname: rabbitmq
+    restart: always
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+
+  redis:
+    image: redis
+    container_name: redis
+    hostname: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    environment:
+      - REDIS_PASSWORD=password
+
+  reservation-api:
+    image: reservation-api
+    container_name: reservation-api-app
+    build:
+      context: reservation-api/.
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    links:
+      - redis
+    restart: always
+    environment:
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_DATA_REDIS_HOST=redis
+    depends_on:
+      - rabbitmq
+      - redis

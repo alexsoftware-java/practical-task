@@ -28,4 +28,5 @@ public interface ReservationController {
     ReservationResponseDto makeReservation(
             @RequestHeader(name = "Authorization") String apiKey,
             @Valid @Parameter(description = "JSON represents search request") @RequestBody ReservationRequestDto request);
+    
 }

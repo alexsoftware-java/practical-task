@@ -28,6 +28,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	// AMQP
 	implementation 'org.springframework.boot:spring-boot-starter-amqp'
+	// Redis
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	// Http logging
 	implementation 'org.zalando:logbook-spring-boot-starter:3.7.2'
 	// OpenAPI docs
