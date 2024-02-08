@@ -1,6 +1,6 @@
 package io.rateboard.reservationprocessor.service;
 
-import io.rateboard.reservationprocessor.dto.ReservationRequestDto;
+import io.rateboard.reservationprocessor.dto.ReservationQueueRequestDto;
 import io.rateboard.reservationprocessor.utils.Constants;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,15 +14,14 @@ import org.springframework.stereotype.Service;
 public class ReservationFallBackProcessingService {
 
     /**
-     * Process message from failured deliveries queue
+     * (much different) Process t process messages from failure deliveries queue
      *
      * @param message payload from queue
      * @throws DataAccessException if failed to save to redis
      */
     @RabbitListener(queues = Constants.FALL_BACK_RESERVATION_QUEUE)
-    public void processMessage(ReservationRequestDto message) {
+    public void processMessage(ReservationQueueRequestDto message) {
         log.warn(message.toString());
     }
-
 
 }

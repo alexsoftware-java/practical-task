@@ -1,6 +1,6 @@
 package io.rateboard.reservationprocessor.service;
 
-import io.rateboard.reservationprocessor.dto.ReservationRequestDto;
+import io.rateboard.reservationprocessor.dto.ReservationQueueRequestDto;
 import io.rateboard.reservationprocessor.repositry.MessageStoreRepository;
 import io.rateboard.reservationprocessor.utils.Constants;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ public class ReservationProcessingService {
      * @throws DataAccessException if failed to save to redis
      */
     @RabbitListener(queues = Constants.RESERVATION_QUEUE)
-    public void processMessage(ReservationRequestDto message) {
+    public void processMessage(ReservationQueueRequestDto message) {
         log.info(message.toString());
         var messageStoreEntity = repository.findById(message.getMessageId());
         if (messageStoreEntity.isEmpty()) {
@@ -34,6 +34,5 @@ public class ReservationProcessingService {
         messageStoreEntity.get().setProcessedAt(Instant.now());
         repository.save(messageStoreEntity.get());
     }
-
 
 }

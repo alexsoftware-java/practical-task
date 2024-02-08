@@ -1,12 +1,15 @@
 package io.rateboard.reservationprocessor.dto;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import lombok.Data;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.ToString;
 
 import java.time.Instant;
 
-@Data
-public class ReservationRequestDto {
+@Getter
+@ToString
+public class ReservationQueueRequestDto {
     /**
      * messageId from reservation-api example = 51fa895a-4ede-4af4-bfa0-27e1c98a0cb5
      */
