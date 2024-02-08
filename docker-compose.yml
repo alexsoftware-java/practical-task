@@ -33,10 +33,14 @@ services:
       - "8080:8080"
     links:
       - redis
+      - rabbitmq
     restart: always
     environment:
       - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_USERNAME=guest
+      - SPRING_RABBITMQ_PASSWORD=guest
       - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PASSWORD=password
     depends_on:
       - rabbitmq
       - redis

@@ -18,7 +18,7 @@ public class ReservationService {
     private final MessagingQueueService messagingQueueService;
     private final MessageStoreService messageStoreService;
 
-    public ReservationResponseDto makeReservation(ReservationRequestDto request) {
+    public ReservationResponseDto sendReservation(ReservationRequestDto request) {
         String messageId = UUID.randomUUID().toString();
         Instant createdAt = Instant.now();
         log.debug("Create message to send to queue, messageId: %s, createdAt: %s".formatted(messageId, createdAt));

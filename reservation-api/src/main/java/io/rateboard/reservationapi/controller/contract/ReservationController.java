@@ -25,7 +25,7 @@ public interface ReservationController {
             @ApiResponse(responseCode = "500", description = "Server error occurred", content = @Content)
     })
     @PostMapping
-    ReservationResponseDto makeReservation(
+    ReservationResponseDto sendReservation(
             @RequestHeader(name = "Authorization") String apiKey,
             @Valid @Parameter(description = "JSON represents search request") @RequestBody ReservationRequestDto request);
     

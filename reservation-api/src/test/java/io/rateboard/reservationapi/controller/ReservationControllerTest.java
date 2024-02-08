@@ -84,7 +84,7 @@ class ReservationControllerTest {
         request.setPayload(jsonNode);
         request.setUpdatedAt(Instant.ofEpochMilli(1707326577));
         // when
-        var result = controller.makeReservation("somekey", request);
+        var result = controller.sendReservation("somekey", request);
         // then
         assertNotNull(result);
         assertNull(result.errorCode());

@@ -19,11 +19,11 @@ public class ReservationControllerImpl implements ReservationController {
     private final ReservationService reservationService;
 
     @Override
-    public ReservationResponseDto makeReservation(String apiKey, ReservationRequestDto request) {
+    public ReservationResponseDto sendReservation(String apiKey, ReservationRequestDto request) {
         if (!apiKey.equals(serviceApiKey)) {
             throw new WrongApiKeyException();
         }
 
-        return reservationService.makeReservation(request);
+        return reservationService.sendReservation(request);
     }
 }
