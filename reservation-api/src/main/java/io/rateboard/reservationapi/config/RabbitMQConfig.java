@@ -16,12 +16,13 @@ public class RabbitMQConfig {
 
     /**
      * Create a queue for reservation and dead letter queue in case of ttl exceeded
-     *
+     * <a href="https://www.rabbitmq.com/dlx.html">Rabbit MQ dead-letter doc</a>
      * @return "q.reservation" queue in rabbit
      */
     @Bean
     public Queue createReservationQueue() {
         return QueueBuilder.durable("q.reservation")
+                .maxLength(1_000_000L) // after 1MLN messages in q, oldest one will be rejected to deadLetterQueue
                 .deadLetterExchange("x.reservation-failure")
                 .deadLetterRoutingKey("fall-back")
                 .build();
@@ -35,13 +36,14 @@ public class RabbitMQConfig {
     @Bean
     public Queue createFallBackQueue() {
         return QueueBuilder.durable("q.fall-back-reservation")
+
                 .build();
     }
 
     /**
      * Set up a dead letter exchange
      *
-     * @return
+     * @return new exchange to fall-back queue
      */
     @Bean
     public Declarables createDeadLetterSchema() {
