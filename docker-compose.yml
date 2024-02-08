@@ -6,6 +6,8 @@ services:
     container_name: rabbitmq
     hostname: rabbitmq
     restart: always
+    volumes:
+      - ./rabbitmq:/var/lib/rabbitmq
     ports:
       - "15672:15672"
       - "5672:5672"
@@ -18,6 +20,8 @@ services:
     container_name: redis
     hostname: redis
     restart: always
+    volumes:
+      - ./redis-volume:/data
     ports:
       - "6379:6379"
     environment:

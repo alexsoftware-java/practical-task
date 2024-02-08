@@ -1,7 +1,7 @@
 FROM gradle:8.6-jdk17-alpine as builder
 WORKDIR /builder
 COPY . /builder/.
-RUN gradle bootJar
+RUN gradle clean bootJar
 
 FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app

@@ -9,6 +9,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,6 +40,7 @@ public class MessageStoreService {
 
     /**
      * Get message by id
+     *
      * @param messageId uuid
      * @return Optional.empty() if not found, MessageStoreDto if found
      */
@@ -55,17 +57,24 @@ public class MessageStoreService {
 
     /**
      * Fetch messages by reservation id
+     *
      * @param reservationId reservation id
      * @return Optional.empty() if not found or List of MessageStoreDto
      */
     public Optional<List<MessageStoreDto>> getMessagesByReservationId(String reservationId) {
         log.debug("Getting messages with reservation id %s from store".formatted(reservationId));
         var messages = messageStoreRepository.findAllByReservationId(reservationId);
-        log.debug("Found %s messages with reservation id %s".formatted(messages.map(List::size).orElse(0), reservationId));
-        return messages.map(messageStoreEntities -> messageStoreEntities.stream().map(messageStoreEntity -> MessageStoreDto.builder()
-                .messageId(messageStoreEntity.getMessageId())
-                .processedAt(messageStoreEntity.getProcessedAt())
-                .createdAt(messageStoreEntity.getCreatedAt())
-                .build()).toList());
+        log.debug("Got %d messages with reservation id %s from store".formatted(messages.size(), reservationId));
+        var result = new ArrayList<MessageStoreDto>();
+        messages.forEach(message -> {
+            if (message.getReservationId().equals(reservationId)) {
+                result.add(MessageStoreDto.builder()
+                        .messageId(message.getMessageId())
+                        .processedAt(message.getProcessedAt())
+                        .createdAt(message.getCreatedAt())
+                        .build());
+            }
+        });
+        return result.isEmpty() ? Optional.empty() : Optional.of(result);
     }
 }
