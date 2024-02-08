@@ -26,6 +26,10 @@ public class ReservationProcessingService {
     @RabbitListener(queues = Constants.RESERVATION_QUEUE)
     public void processMessage(ReservationQueueRequestDto message) {
         log.info(message.toString());
+        if(message.getMessageId() == null) {
+            log.error("Got Invalid message");
+            return;
+        }
         var messageStoreEntity = repository.findById(message.getMessageId());
         if (messageStoreEntity.isEmpty()) {
             log.error("Can't find message %s in MessageStore!".formatted(message.getMessageId()));
