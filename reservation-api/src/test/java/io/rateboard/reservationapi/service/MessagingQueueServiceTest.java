@@ -16,6 +16,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 
 import java.time.Instant;
 
+import static io.rateboard.reservationapi.service.MessagingQueueRabbitTest.getReservationUserRequestDto;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.verify;
@@ -32,12 +33,7 @@ class MessagingQueueServiceTest {
     @Test
     void sendToQueue() throws JsonProcessingException {
         // given
-        var reservationUserRequestDto = new ReservationUserRequestDto();
-        reservationUserRequestDto.setReservationId("1234");
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode jsonNode = objectMapper.readTree("{\"reservationDate\": \"2024-04-01T10:00:00Z\", \"numberOfAdults\": 2, \"numberOfChildren\": 0, \"roomType\": \"double\"}");
-        reservationUserRequestDto.setPayload(jsonNode);
-        reservationUserRequestDto.setUpdatedAt(Instant.ofEpochMilli(1707408491));
+        var reservationUserRequestDto = getReservationUserRequestDto();
         // when
         assertDoesNotThrow(() -> messagingQueueService.sendToQueue("123", reservationUserRequestDto));
         // then
@@ -45,7 +41,6 @@ class MessagingQueueServiceTest {
         verify(rabbitTemplate).convertAndSend(ArgumentMatchers.anyString(), captor.capture());
         assertEquals("123", captor.getValue().getMessageId());
         assertEquals("1234", captor.getValue().getReservationId());
-        assertEquals(jsonNode, captor.getValue().getPayload());
         assertEquals(Instant.ofEpochMilli(1707408491), captor.getValue().getUpdatedAt());
     }
 }

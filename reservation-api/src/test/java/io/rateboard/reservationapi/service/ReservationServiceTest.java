@@ -16,6 +16,7 @@ import org.springframework.data.redis.connection.RedisPipelineException;
 import java.io.IOException;
 import java.time.Instant;
 
+import static io.rateboard.reservationapi.service.MessagingQueueRabbitTest.getReservationUserRequestDto;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -38,12 +39,7 @@ class ReservationServiceTest {
         // given
         doNothing().when(messagingQueueService).sendToQueue(any(), any());
         doNothing().when(messageStoreService).saveMessage(anyString(), any(Instant.class), anyString());
-        var request = new ReservationUserRequestDto();
-        request.setReservationId("123");
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode jsonNode = objectMapper.readTree("{\"reservationDate\": \"2024-04-01T10:00:00Z\", \"numberOfAdults\": 2, \"numberOfChildren\": 0, \"roomType\": \"double\"}");
-        request.setPayload(jsonNode);
-        request.setUpdatedAt(Instant.ofEpochMilli(1707408491));
+        var request = getReservationUserRequestDto();
         // when
         var result = assertDoesNotThrow(() -> reservationService.sendReservation(request));
         // then
