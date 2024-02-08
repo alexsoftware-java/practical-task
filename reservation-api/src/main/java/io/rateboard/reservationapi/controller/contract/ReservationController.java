@@ -1,6 +1,6 @@
 package io.rateboard.reservationapi.controller.contract;
 
-import io.rateboard.reservationapi.dto.ReservationRequestDto;
+import io.rateboard.reservationapi.dto.ReservationUserRequestDto;
 import io.rateboard.reservationapi.dto.ReservationResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -27,6 +27,6 @@ public interface ReservationController {
     @PostMapping
     ReservationResponseDto sendReservation(
             @RequestHeader(name = "Authorization") String apiKey,
-            @Valid @Parameter(description = "JSON represents search request") @RequestBody ReservationRequestDto request);
+            @Valid @Parameter(description = "JSON represents search request") @RequestBody ReservationUserRequestDto request);
     
 }

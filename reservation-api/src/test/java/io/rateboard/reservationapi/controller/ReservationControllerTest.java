@@ -3,7 +3,7 @@ package io.rateboard.reservationapi.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.rateboard.reservationapi.dto.ReservationRequestDto;
+import io.rateboard.reservationapi.dto.ReservationUserRequestDto;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -77,7 +77,7 @@ class ReservationControllerTest {
     @Test
     void TestControllerMethod() throws JsonProcessingException {
         // given
-        var request = new ReservationRequestDto();
+        var request = new ReservationUserRequestDto();
         request.setReservationId("1234");
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = objectMapper.readTree("{\"reservationDate\": \"2024-04-01T10:00:00Z\", \"numberOfAdults\": 2, \"numberOfChildren\": 0, \"roomType\": \"double\"}");

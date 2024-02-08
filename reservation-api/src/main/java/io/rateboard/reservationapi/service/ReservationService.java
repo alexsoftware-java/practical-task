@@ -1,6 +1,6 @@
 package io.rateboard.reservationapi.service;
 
-import io.rateboard.reservationapi.dto.ReservationRequestDto;
+import io.rateboard.reservationapi.dto.ReservationUserRequestDto;
 import io.rateboard.reservationapi.dto.ReservationResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,12 +18,12 @@ public class ReservationService {
     private final MessagingQueueService messagingQueueService;
     private final MessageStoreService messageStoreService;
 
-    public ReservationResponseDto sendReservation(ReservationRequestDto request) {
+    public ReservationResponseDto sendReservation(ReservationUserRequestDto request) {
         String messageId = UUID.randomUUID().toString();
         Instant createdAt = Instant.now();
         log.debug("Create message to send to queue, messageId: %s, createdAt: %s".formatted(messageId, createdAt));
         try {
-            messagingQueueService.sendToQueue(request);
+            messagingQueueService.sendToQueue(messageId, request);
             messageStoreService.saveMessage(messageId, createdAt, request.getReservationId());
         } catch (AmqpException e) {
             // TODO possible retry via resilence4j?

@@ -1,7 +1,7 @@
 package io.rateboard.reservationapi.controller;
 
 import io.rateboard.reservationapi.controller.contract.ReservationController;
-import io.rateboard.reservationapi.dto.ReservationRequestDto;
+import io.rateboard.reservationapi.dto.ReservationUserRequestDto;
 import io.rateboard.reservationapi.dto.ReservationResponseDto;
 import io.rateboard.reservationapi.exception.WrongApiKeyException;
 import io.rateboard.reservationapi.service.ReservationService;
@@ -19,7 +19,7 @@ public class ReservationControllerImpl implements ReservationController {
     private final ReservationService reservationService;
 
     @Override
-    public ReservationResponseDto sendReservation(String apiKey, ReservationRequestDto request) {
+    public ReservationResponseDto sendReservation(String apiKey, ReservationUserRequestDto request) {
         if (!apiKey.equals(serviceApiKey)) {
             throw new WrongApiKeyException();
         }

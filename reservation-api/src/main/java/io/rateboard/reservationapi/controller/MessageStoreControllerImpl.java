@@ -38,7 +38,7 @@ public class MessageStoreControllerImpl implements MessageStoreController {
         }
         var messages = messageStoreService.getMessagesByReservationId(reservationId);
         return messages
-                .map(messageStoreDtos -> new ResponseEntity<>(messageStoreDtos, HttpStatus.OK))
+                .map(messageStoreDto -> new ResponseEntity<>(messageStoreDto, HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 }
