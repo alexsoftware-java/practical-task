@@ -1,7 +1,6 @@
 package io.rateboard.reservationprocessor.dto;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 

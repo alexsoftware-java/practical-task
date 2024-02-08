@@ -38,7 +38,7 @@ class ReservationProcessingServiceTest {
         when(converter.fromMessage(any(Message.class))).thenReturn(request);
         when(messageStoreRepository.findById(any(String.class))).thenReturn(Optional.ofNullable(MessageStoreEntity.builder().messageId("123").build()));
         // when
-        reservationProcessingService.processMessage(new Message(new byte[0]));
+        reservationProcessingService.processMessage(request);
         // then
         ArgumentCaptor<MessageStoreEntity> captor = ArgumentCaptor.forClass(MessageStoreEntity.class);
         verify(messageStoreRepository).save(captor.capture());
