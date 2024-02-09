@@ -25,7 +25,6 @@ public class RabbitMQConfig {
     @Bean
     public Queue createReservationQueue() {
         return QueueBuilder.durable(RESERVATION_QUEUE)
-                .maxLength(RESERVATION_QUEUE_MAX_LENGTH) // after 1MLN messages in q, oldest one will be rejected to q.fall-back-reservation
                 .deadLetterExchange(FALL_BACK_RESERVATION_EXCHANGE)
                 .deadLetterRoutingKey(FALL_BACK_ROUTING_KEY)
                 .build();
