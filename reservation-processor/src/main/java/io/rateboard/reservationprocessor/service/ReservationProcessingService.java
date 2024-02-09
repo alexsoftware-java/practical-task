@@ -1,6 +1,7 @@
 package io.rateboard.reservationprocessor.service;
 
 import io.rateboard.reservationprocessor.dto.ReservationQueueRequestDto;
+import io.rateboard.reservationprocessor.entity.MessageStoreEntity;
 import io.rateboard.reservationprocessor.repositry.MessageStoreRepository;
 import io.rateboard.reservationprocessor.utils.Constants;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -21,23 +23,23 @@ public class ReservationProcessingService {
      * Process message from queue
      *
      * @param message from queue
-     * @throws DataAccessException if failed to save to redis
+     * @throws IllegalArgumentException if messageId is null
      */
     @RabbitListener(queues = Constants.RESERVATION_QUEUE)
     public void processMessage(ReservationQueueRequestDto message) {
         log.info("Got message from queue %s".formatted(message));
         if (message.getMessageId() == null) {
-            log.error("Got Invalid message");
-            return;
+            throw new IllegalArgumentException("Message is invalid (empty messageId)");
         }
-        var messageStoreEntity = repository.findById(message.getMessageId());
-        if (messageStoreEntity.isEmpty()) {
-            log.error("Can't find message %s in MessageStore!".formatted(message.getMessageId()));
-            return;
+        var messageStoreEntityOpt = repository.findById(message.getMessageId());
+        if (messageStoreEntityOpt.isEmpty()) {
+            log.warn("Can't find message %s in MessageStore (yet)! Will create by my own".formatted(message.getMessageId()));
+            messageStoreEntityOpt = Optional.of(MessageStoreEntity.builder()
+                    .messageId(message.getMessageId())
+                    .reservationId(message.getReservationId()).build());
         }
-        messageStoreEntity.get().setProcessedAt(Instant.now());
-        repository.save(messageStoreEntity.get());
+        messageStoreEntityOpt.get().setProcessedAt(Instant.now());
+        repository.save(messageStoreEntityOpt.get());
         log.info("Processed messageId %s".formatted(message.getMessageId()));
     }
-
 }
