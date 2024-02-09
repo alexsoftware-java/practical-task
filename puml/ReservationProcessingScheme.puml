@@ -2,29 +2,30 @@
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
 !include https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons/redis.puml
 !include https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons/java.puml
-!include https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/material/message.puml
 
-LAYOUT_WITH_LEGEND()
 skinparam wrapWidth 350
+skinparam wrapHeight 100
 skinparam maxMessageSize 200
 
-Person(person, "User", "Looking for a place to sleep")
+Person(person, "Client", "Looking for a place to sleep")
 Person(hotel, "Hotel manager", "Happy to receive guests")
-ContainerDb(redis, "Redis", "MessageStore", "To store processing status (TTL=24 hours)", $sprite="redis")
+ContainerDb(redis, "Redis", "MessageStore", "Store processing status (TTL=24 hours)", $sprite="redis")
 
 System(pms, "Hotel reservation system (PMS)", "Operates reservation events")
-System(api, "Reservation API", "Obtain reservation requests and provide status of processing", $sprite="java")
-System(processor, "Reservation Processor", "Process messages from queue", $sprite="java")
+Container(api, "Reservation API", "Obtain reservation requests and provide status of processing", $sprite="java")
+Container(processor, "Reservation Processor", "Process messages from queue", $sprite="java")
 
 AddRelTag("messageStore", $textColor="grey", $lineColor="grey", $lineStyle = DashedLine())
 
 Rel(person, pms, "Booking process")
-Rel(hotel, pms, "Booking process")
+Rel_L(hotel, pms, "Creates/check bookings")
 Rel(pms, api, "Send reservation real-time data", "REST", "/api/v1/reservation")
 Rel(pms, api, "Get processing status", "REST", "/api/v1/reservation/${reservationId} /api/v1/reservation/message/${messageId}")
 Rel(api, redis, "Write message meta-data","redis", "messageId, reservationId, receivedAt", $tags="messageStore")
-Rel(api, redis, "Get message meta-data to provide processing status","redis", "messageId, reservationId, receivedAt, processedAt", $tags="messageStore")
 Rel(api, processor, "Send reservation details", "RabbitMQ - FIFO Queue", "q.reservation, q.fall-back-reservation")
+Rel(api, redis, "Get message meta-data to provide processing status","redis", "messageId, reservationId, receivedAt, processedAt", $tags="messageStore")
 Rel(processor, redis, "Write processedAt timestamp", "redis", "messageId, processedAt", $tags="messageStore")
+
+SHOW_FLOATING_LEGEND()
 
 @enduml
