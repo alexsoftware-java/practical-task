@@ -33,10 +33,12 @@ public class ReservationProcessingService {
         }
         var messageStoreEntityOpt = repository.findById(message.getMessageId());
         if (messageStoreEntityOpt.isEmpty()) {
-            log.warn("Can't find message %s in MessageStore (yet)! Will create by my own".formatted(message.getMessageId()));
+            log.info("Can't find message %s in MessageStore (yet)! Will create by my own".formatted(message.getMessageId()));
             messageStoreEntityOpt = Optional.of(MessageStoreEntity.builder()
+                    .createdAt(Instant.now())
                     .messageId(message.getMessageId())
-                    .reservationId(message.getReservationId()).build());
+                    .reservationId(message.getReservationId())
+                    .build());
         }
         messageStoreEntityOpt.get().setProcessedAt(Instant.now());
         repository.save(messageStoreEntityOpt.get());
