@@ -1,20 +1,26 @@
 version: '3.3'
 
 services:
+  # RabbitMQ messaging queue
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq
     hostname: rabbitmq
     restart: always
     volumes:
-      - ./rabbitmq:/var/lib/rabbitmq
+      - ./rabbitmq:/var/lib/rabbitmq # to store data volume locally
     ports:
-      - "15672:15672"
+      - "15672:15672" # web console
       - "5672:5672"
     environment:
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
-
+    healthcheck:
+      test: rabbitmq-diagnostics check_port_connectivity
+      interval: 20s
+      timeout: 10s
+      retries: 5
+  # Redis to provide processing result to user
   redis:
     image: redis
     container_name: redis
@@ -26,7 +32,9 @@ services:
       - "6379:6379"
     environment:
       - REDIS_PASSWORD=password
-
+    healthcheck:
+      test: "exit 0"
+  # REST API to stream reservations by sending them to RabbitMQ queue and provide processing result to user
   reservation-api:
     image: reservation-api
     container_name: reservation-api-app
@@ -45,6 +53,31 @@ services:
       - SPRING_RABBITMQ_PASSWORD=guest
       - SPRING_DATA_REDIS_HOST=redis
       - SPRING_DATA_REDIS_PASSWORD=password
+      - API_KEY=swordfish
     depends_on:
-      - rabbitmq
+      rabbitmq:
+          condition: service_healthy
+      redis:
+          condition: service_healthy
+  # Simple processing service, read RabbitMQ queues and save processed timestamp to Redis
+  reservation-processor:
+    image: reservation-processor
+    container_name: reservation-processor-app
+    build:
+      context: reservation-processor/.
+      dockerfile: Dockerfile
+    links:
       - redis
+      - rabbitmq
+    restart: always
+    environment:
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_USERNAME=guest
+      - SPRING_RABBITMQ_PASSWORD=guest
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PASSWORD=password
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
