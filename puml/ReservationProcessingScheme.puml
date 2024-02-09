@@ -11,7 +11,7 @@ Person(person, "Client", "Looking for a place to sleep")
 Person(hotel, "Hotel manager", "Happy to receive guests")
 ContainerDb(redis, "Redis", "MessageStore", "Store processing status (TTL=24 hours)", $sprite="redis")
 
-System(pms, "Hotel reservation system (PMS)", "Operates reservation events")
+System(pms, "Hotel reservation system (part of PMS)", "Operates reservation events")
 Container(api, "Reservation API", "Obtain reservation requests and provide status of processing", $sprite="java")
 Container(processor, "Reservation Processor", "Process messages from queue", $sprite="java")
 
