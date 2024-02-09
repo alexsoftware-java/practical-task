@@ -19,7 +19,12 @@ public interface ReservationController {
 
     @Operation(summary = "Reservation request")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Success", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"errorCode\": null}"))),
+            @ApiResponse(responseCode = "200", description = "Success", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = """
+                    {
+                      "messageId": "78dcee1a-0178-479b-b6e5-90dbaaefa9ba",
+                      "errorCode": null,
+                      "errorMessage": null
+                    }"""))),
             @ApiResponse(responseCode = "401", description = "Unauthorized. Please provide valid API key", content = @Content),
             @ApiResponse(responseCode = "400", description = "Request is not valid", content = @Content),
             @ApiResponse(responseCode = "500", description = "Server error occurred", content = @Content)
