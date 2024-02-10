@@ -1,0 +1,98 @@
+version: '3.3'
+
+services:
+  # RabbitMQ messaging queue
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    hostname: rabbitmq
+    restart: always
+    volumes:
+      - ./rabbitmq:/var/lib/rabbitmq # to store data volume locally
+    ports:
+      - "15672:15672" # web console
+      - "5672:5672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    healthcheck:
+      test: rabbitmq-diagnostics check_port_connectivity
+      interval: 20s
+      timeout: 10s
+      retries: 5
+  # Redis to store processing status
+  redis:
+    image: redis
+    container_name: redis
+    hostname: redis
+    restart: always
+    volumes:
+      - ./redis-volume:/data
+    ports:
+      - "6379:6379"
+    environment:
+      - REDIS_PASSWORD=password
+    healthcheck:
+      test: redis-cli ping | grep PONG
+      interval: 5s
+      timeout: 3s
+      retries: 5
+  # REST API to stream reservations by sending them to RabbitMQ queue and provide processing result to user
+  reservation-api:
+    image: reservation-api
+    deploy:
+      replicas: 2
+    build:
+      context: reservation-api/.
+      dockerfile: Dockerfile
+    expose:
+      - "8081"
+    links:
+      - redis
+      - rabbitmq
+    restart: always
+    environment:
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_USERNAME=guest
+      - SPRING_RABBITMQ_PASSWORD=guest
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PASSWORD=password
+      - API_KEY=swordfish
+    depends_on:
+      rabbitmq:
+          condition: service_healthy
+      redis:
+          condition: service_healthy
+  # Simple processing service, read RabbitMQ queues and save processed timestamp to Redis
+  reservation-processor:
+    image: reservation-processor
+    container_name: reservation-processor-app
+    build:
+      context: reservation-processor/.
+      dockerfile: Dockerfile
+    links:
+      - redis
+      - rabbitmq
+    restart: always
+    environment:
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_USERNAME=guest
+      - SPRING_RABBITMQ_PASSWORD=guest
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PASSWORD=password
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+  # nginx to support reservation-api scaling
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      reservation-api:
+        condition: service_started
+    ports:
+      - "8080:8080"
