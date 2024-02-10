@@ -2,17 +2,16 @@
 
 ## Overview
 
-Original task `
-Create two services.  
+#### Original task 
+Create two services. 
 One service contains a REST API that can receive these
 messages/strings. The second service is a processor that will process the incoming
-messages. Both services are connected by a message queue. In your case the
-processor doesn’t need to do anything useful, just log that it was processed. Assume
-that multiple API services can run in parallel on different hosts, and there is only one
+messages.   
+Both services are connected by a message queue. In your case the
+processor doesn’t need to do anything useful, just log that it was processed.  
+Assume that multiple API services can run in parallel on different hosts, and there is only one
 processor instance. Please also consider the case that the processor could be
-unreachable for some time but you shouldn’t lose messages.`
-### Scheme
-![ReservationProcessingScheme.png](puml/ReservationProcessingScheme.png)
+unreachable for some time but you shouldn’t lose messages.
 
 ## My assumptions:
 
@@ -23,33 +22,27 @@ unreachable for some time but you shouldn’t lose messages.`
 - Reservation System wants to know the **status of processing** and should be able to get processing details by request.
   As well it should be able to request "all processing history" by some reservationId.
 
-- If message wasn't processed correctly (e.g. because of invalid message structure) such message should be rejected to *
-  *fall-back queue** to be processed in another way (e.g. reservation status should be marked as "unknown").
+- If message wasn't processed correctly (e.g. due to invalid message structure) such message should be rejected to 
+  **fall-back queue** to be processed in another way (e.g. reservation status should be marked as "unknown").
+
+
+### Scheme
+![ReservationProcessingScheme.png](puml/ReservationProcessingScheme.png)
+
 
 -----
 
 ## Technologies
 
-- **Spring Boot 3**: Leveraging the latest Spring Boot framework ensures high performance and maintainability.
+- **Spring Boot 3**: Utilizing the latest Spring Boot framework ensures high performance and maintainability.
+- **Spring Data JPA**: Simplifies data access, making it easier to work with Redis database.
+- **RabbitMQ**: Reliable and high-performance solution for fast messaging between services, providing built-in strict ordering support. (See comparison with Kafka and ActiveMQ below).
+- **Redis**: Fast key-value storage used to store request metadata and processing history for the last 24 hours, as well as implementing the MessageStore design pattern.
+- **Lombok**: Reduces boilerplate code, improving code readability and maintainability.
+- **Mockito, JUnit 5, WireMock, and Testcontainers**: Rigorous testing methodologies guarantee the reliability of the service.
+- **API Documentation**: Integrated Swagger (OpenAPI) for clear and comprehensive API documentation, making it easy for users and developers to understand and interact with the service.
+- **Nginx**: Simple Nginx configuration allows scaling the Reservation API service via Docker Compose to provide the necessary level of performance.
 
-- **Spring Data JPA**: Spring Data simplifies data access, making it easier to work with Redis database.
-
-- **RabbitMQ**: Reliable and high-performance solution for fast messaging between services. Provide build-in strict
-  ordering support. (Below you can find a comparison with Kafka and ActiveMQ).
-
-- **Redis**: Fast key-value storage is used to store requests meta-data and processing history for last 24 hours, as
-  well it helps to implement [MessageStore design pattern](https://www.enterpriseintegrationpatterns.com/patterns/messaging/MessageStore.html).
-
-- **Lombok**: Lombok reduces boilerplate code, improving code readability and maintainability.
-
-- **Mockito, JUnit 5, WireMock and Testcontainers**: Rigorous testing methodologies guarantee the reliability of the
-  service.
-
-- **API Documentation**: Swagger(openAPI) has been integrated for clear and comprehensive API documentation, making it easy for
-  users and developers to understand and interact with the service.
-
-- **Nginx**: Simple nginx configuration allow us to scale Reservation API service via docker-compose to provide
-  necessary level of performance.
 
 ## Getting Started
 
@@ -145,17 +138,13 @@ streaming big amount of data, but it requires **complex set up**, which seems to
 but in my opinion ActiveMQ more suitable for medium-sized Enterprise applications.
 
 The choice ultimately depends on specific requirements and priorities, such as required performance, message ordering guarantees, scalability needs, and ecosystem compatibility.
-#### Useful articles:
-https://quix.io/blog/apache-kafka-vs-rabbitmq-comparison#kafka-vs-rabbitmq-features  
-https://www.projectpro.io/compare/rabbitmq-vs-apache-activemq  
-https://stackoverflow.com/questions/21363302/rabbitmq-message-order-of-delivery   
 
 ----
 ### Do you see any problems with this setup?
 1. **Throughput is limited** as rabbitMQ and redis have pretty standard set-up "from the box" and Spring app wasn't configured for a real "high-load" (threads limit not configured).  
 My assumption was that not high amount of data is expected, but if data stream will be too big and too fast 
 (e.g. all reservations from booking.com) for sure deploy(cpu/ram limit) and rabbitMQ/redis configs will require some changes. RabbitMQ standard queue in case of performance issue can be replaced by Rabbit Streams or by Kafka.
-2. **It's not production-ready**. RabbitMQ and Redis lives inside docker, although data folders stores on host machine and won't be lost, 
+2. **It's not production-ready**. RabbitMQ and Redis reside inside Docker containers, although data folders stores on host machine and won't be lost, 
 in production they should live in cluster on different nodes to have higher fault tolerance level. Spring Cloud Sleuth will be helpful for tracing the requests.  
 Authorisation mechanism (API_KEY) should be replaced by normal security scheme(e.g. auth-service by JWT tokens).
 
@@ -163,7 +152,7 @@ Authorisation mechanism (API_KEY) should be replaced by normal security scheme(e
 ### What kind of data does the sender’s message HAVE TO contain to ensure they are imported in the correct order?
 
 Sender should provide timestamp of message creation in source system.   
-Timestamps will allow `reservation-processor` to "re-apply" previous messages e.g. in Database (state should be saved).
+This timestamp allows the `reservation-processor` to maintain message order and reapply previous messages if necessary.
 
 ----
 ### Are there any optimisations you see but didn’t implement?
@@ -193,5 +182,8 @@ There is quite high value of avg. response time for initial POST requests (0.9s)
 #### Links:
 https://www.altexsoft.com/blog/hotel-property-management-systems-products-and-features/  
 https://www.enterpriseintegrationpatterns.com/patterns/messaging/MessageStore.html  
+https://quix.io/blog/apache-kafka-vs-rabbitmq-comparison#kafka-vs-rabbitmq-features  
+https://www.projectpro.io/compare/rabbitmq-vs-apache-activemq  
+https://stackoverflow.com/questions/21363302/rabbitmq-message-order-of-delivery   
 
 
