@@ -18,6 +18,11 @@ public class ReservationService {
     private final MessagingQueueService messagingQueueService;
     private final MessageStoreService messageStoreService;
 
+    /**
+     * Process reservation request - generate messageId, send to RabbitMQ and to mesageStore.
+     * @param request ReservationUserRequestDto
+     * @return messageId in case of success, non-null errorCode and errorMessage in case of Exception during send to queue
+     */
     public ReservationResponseDto sendReservation(ReservationUserRequestDto request) {
         String messageId = UUID.randomUUID().toString();
         Instant createdAt = Instant.now();
@@ -30,8 +35,9 @@ public class ReservationService {
             log.error("Failed to send message to queue, messageId: %s".formatted(messageId), e);
             return ReservationResponseDto.builder().errorCode(100500).errorMessage("Failed to process the message").build();
         } catch (DataAccessException dataAccessException) {
-            log.error("Failed to save message to store, messageId: %s".formatted(messageId), dataAccessException);
-            return ReservationResponseDto.builder().errorCode(100400).errorMessage("Message sent to processor, but status may be unknown").build();
+            // message will be processed anyway
+            log.warn("Failed to save message to store, messageId: %s".formatted(messageId), dataAccessException);
+            return ReservationResponseDto.builder().messageId(messageId).build();
         }
         log.debug("Message successfully sent to queue, messageId: %s".formatted(messageId));
         return ReservationResponseDto.builder().messageId(messageId).build();

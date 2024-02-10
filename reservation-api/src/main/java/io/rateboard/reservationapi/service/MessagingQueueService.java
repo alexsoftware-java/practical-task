@@ -14,6 +14,12 @@ import static io.rateboard.reservationapi.utils.Constants.RESERVATION_QUEUE;
 public class MessagingQueueService {
     private final RabbitTemplate rabbitTemplate;
 
+    /**
+     * Send reservation to RabbiqMQ queue
+     * @param messageId uuid
+     * @param request ReservationUserRequestDto represents reservation information
+     * @throws AmqpException if failed to send
+     */
     public void sendToQueue(String messageId, ReservationUserRequestDto request) throws AmqpException {
         var reservationQueueRequestDto = new ReservationQueueRequestDto();
         reservationQueueRequestDto.setMessageId(messageId);

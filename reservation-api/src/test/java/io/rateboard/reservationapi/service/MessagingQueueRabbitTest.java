@@ -32,7 +32,7 @@ public class MessagingQueueRabbitTest implements RabbitTestContainer {
 
 
     @Test
-    public void onReservationSendTest(CapturedOutput output) throws JsonProcessingException {
+    public void rabbitMQConfigurationCorrectnessTest(CapturedOutput output) throws JsonProcessingException {
         // given
         var reservationUserRequestDto = getReservationUserRequestDto();
         // when

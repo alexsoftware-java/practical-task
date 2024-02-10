@@ -1,8 +1,6 @@
 package io.rateboard.reservationapi.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.rateboard.reservationapi.dto.ReservationUserRequestDto;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -76,8 +74,7 @@ class ReservationServiceTest {
         // when
         var result = assertDoesNotThrow(() -> reservationService.sendReservation(request));
         // then
-        Assertions.assertNull(result.messageId());
-        assertEquals("Message sent to processor, but status may be unknown", result.errorMessage());
-        assertEquals(100400, result.errorCode());
+        Assertions.assertNotNull(result.messageId());
+        verify(messagingQueueService).sendToQueue(any(), any());
     }
 }
