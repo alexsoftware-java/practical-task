@@ -2,6 +2,16 @@
 
 ## Overview
 
+Original task `
+Create two services.  
+One service contains a REST API that can receive these
+messages/strings. The second service is a processor that will process the incoming
+messages. Both services are connected by a message queue. In your case the
+processor doesn’t need to do anything useful, just log that it was processed. Assume
+that multiple API services can run in parallel on different hosts, and there is only one
+processor instance. Please also consider the case that the processor could be
+unreachable for some time but you shouldn’t lose messages.`
+### Scheme
 ![ReservationProcessingScheme.png](puml/ReservationProcessingScheme.png)
 
 ## My assumptions:
@@ -65,6 +75,30 @@
 4. Access the API documentation at http://localhost:8080/swagger-ui/index.html to explore the available endpoints and
    requests examples and interact with the service.
 
+
+**Some example requests:**
+- Create new reservation
+    ```shell
+    curl --request POST --location 'http://localhost:8080/api/v1/reservation' \
+      --header 'Content-Type: application/json' \
+      --header 'Authorization: swordfish' \
+      --data '{
+        "reservationId": "12345",
+        "payload": {
+            "reservationDate": "2024-04-01T10:00:00Z",
+            "numberOfAdults": 2,
+            "numberOfChildren": 0,
+            "roomType": "double"
+       },
+       "updatedAt": "2024-02-01T10:00:00Z"
+   }'
+  ```
+- Get all messages with processing time by reservationId
+  ```shell
+    curl --location 'http://localhost:8080/api/v1/reservation/12345' --header 'Authorization: swordfish'
+  ```
+
+
 5. To stop the application please use the command:
    ```shell
    docker-compose down
@@ -118,12 +152,24 @@ https://stackoverflow.com/questions/21363302/rabbitmq-message-order-of-delivery
 
 ----
 ### Do you see any problems with this setup?
-1. **Throughput is limited** as rabbitMQ and redis have pretty standard set-up "from the box" and Spring app wasn't configured for a real "high-load" (no async calls used, threads limit not configured).  
+1. **Throughput is limited** as rabbitMQ and redis have pretty standard set-up "from the box" and Spring app wasn't configured for a real "high-load" (threads limit not configured).  
 My assumption was that not high amount of data is expected, but if data stream will be too big and too fast 
 (e.g. all reservations from booking.com) for sure deploy(cpu/ram limit) and rabbitMQ/redis configs will require some changes. RabbitMQ standard queue in case of performance issue can be replaced by Rabbit Streams or by Kafka.
 2. **It's not production-ready**. RabbitMQ and Redis lives inside docker, although data folders stores on host machine and won't be lost, 
-in production they should live in cluster on different nodes to have higher fault tolerance level.  
-Authorisation mechanism (API_KEY) should be replaced to normal security scheme(e.g. auth-service by JWT tokens).
+in production they should live in cluster on different nodes to have higher fault tolerance level. Spring Cloud Sleuth will be helpful for tracing the requests.  
+Authorisation mechanism (API_KEY) should be replaced by normal security scheme(e.g. auth-service by JWT tokens).
+
+----
+### What kind of data does the sender’s message HAVE TO contain to ensure they are imported in the correct order?
+
+Sender should provide timestamp of message creation in source system.   
+Timestamps will allow `reservation-processor` to "re-apply" previous messages e.g. in Database (state should be saved).
+
+----
+### Are there any optimisations you see but didn’t implement?
+
+- Async calls to RabbitMQ and MessageStore to reduce response time to PMS.
+- "Race condition" between `api` and `processor` while new entry in MessageStore creates (rabbit sometimes faster than redis). Not a big issue as data saved correctly anyway, can be fixed via distributed lock or via routing copy of messages to 3rd service.
 
 ----
 ## Load Testing
@@ -143,6 +189,9 @@ All messages were successfully processed by "reservation processor", avg. proces
 There is quite high value of avg. response time for initial POST requests (0.9s).  
 **Solution** If such time is not appropriate for the source system, it is possible to return messageId to the sender immediately after generation and call "sendToQueue" and "saveToMessageStore" methods asynchronously.
 
-
+-----
+#### Links:
+https://www.altexsoft.com/blog/hotel-property-management-systems-products-and-features/  
+https://www.enterpriseintegrationpatterns.com/patterns/messaging/MessageStore.html  
 
 
