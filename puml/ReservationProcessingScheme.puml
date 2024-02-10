@@ -22,7 +22,7 @@ Rel_L(hotel, pms, "Creates/check bookings")
 Rel(pms, api, "Send reservation real-time data", "REST", "/api/v1/reservation")
 Rel(pms, api, "Get processing status", "REST", "/api/v1/reservation/${reservationId} /api/v1/reservation/message/${messageId}")
 Rel(api, redis, "Write message meta-data","redis", "messageId, reservationId, receivedAt", $tags="messageStore")
-Rel(api, processor, "Send reservation details", "RabbitMQ - FIFO Queue", "q.reservation, q.fall-back-reservation")
+Rel(api, processor, "Send reservation details", "RabbitMQ Queue", "q.reservation, q.fall-back-reservation")
 Rel(api, redis, "Get message meta-data to provide processing status","redis", "messageId, reservationId, receivedAt, processedAt", $tags="messageStore")
 Rel(processor, redis, "Write processedAt timestamp", "redis", "messageId, processedAt", $tags="messageStore")
 
