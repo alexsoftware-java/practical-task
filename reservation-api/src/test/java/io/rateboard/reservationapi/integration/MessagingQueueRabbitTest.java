@@ -12,8 +12,7 @@ import org.springframework.boot.test.system.OutputCaptureExtension;
 
 import java.io.IOException;
 
-import static io.rateboard.reservationapi.utils.Constants.RESERVATION_EXCHANGE;
-import static io.rateboard.reservationapi.utils.Constants.RESERVATION_ROUTING_KEY;
+import static io.rateboard.reservationapi.utils.Constants.*;
 import static io.rateboard.reservationapi.utils.DataGenerator.getReservationQueueRequestDto;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -32,12 +31,21 @@ public class MessagingQueueRabbitTest implements RabbitTestContainer {
 
     @Test
     public void rabbitMQAutoConfigurationTest() throws InterruptedException, IOException {
+        // given
+        var reservationQueueRequestDto = getReservationQueueRequestDto();
+        // when
+        assertDoesNotThrow(() -> rabbitTemplate.convertAndSend(
+                RESERVATION_EXCHANGE,
+                RESERVATION_ROUTING_KEY,
+                reservationQueueRequestDto
+        ));
+        // then
         assertThat(container.execInContainer("rabbitmqctl", "list_exchanges").getStdout())
-                .containsPattern("x.reservation\\s+direct")
-                .containsPattern("x.reservation-failure\\s+direct");
+                .containsPattern(RESERVATION_EXCHANGE+"\\s+direct")
+                .containsPattern(FALL_BACK_RESERVATION_EXCHANGE+"\\s+direct");
         assertThat(container.execInContainer("rabbitmqctl", "list_queues", "name").getStdout())
-                .containsPattern("q.reservation")
-                .containsPattern("q.fall-back-reservation");
+                .containsPattern(RESERVATION_QUEUE)
+                .containsPattern(FALL_BACK_RESERVATION_QUEUE);
     }
 
     @Test
