@@ -191,7 +191,7 @@ All messages were successfully processed by "reservation processor", avg. proces
 
 #### Conclusions after load testing:
 There is quite high value of avg. response time for initial POST requests (0.9s).  
-**Solution** If such time is not appropriate for the source system, it is possible to return messageId to the sender immediately after generation and call "sendToQueue" and "saveToMessageStore" methods asynchronously.
+**Solution** If such time is not appropriate for the source system, it is possible to return messageId to the sender immediately after generation and call "sendToQueue" method asynchronously.
 
 -----
 #### Links:
