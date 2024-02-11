@@ -7,7 +7,7 @@ import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
-import static io.rateboard.reservationapi.utils.Constants.RESERVATION_QUEUE;
+import static io.rateboard.reservationapi.utils.Constants.*;
 
 @Service
 @RequiredArgsConstructor
@@ -16,8 +16,9 @@ public class MessagingQueueService {
 
     /**
      * Send reservation to RabbitMQ queue
+     *
      * @param messageId uuid
-     * @param request ReservationUserRequestDto represents reservation information
+     * @param request   ReservationUserRequestDto represents reservation information
      * @throws AmqpException if failed to send
      */
     public void sendToQueue(String messageId, ReservationUserRequestDto request) throws AmqpException {
@@ -26,8 +27,7 @@ public class MessagingQueueService {
         reservationQueueRequestDto.setReservationId(request.getReservationId());
         reservationQueueRequestDto.setPayload(request.getPayload());
         reservationQueueRequestDto.setUpdatedAt(request.getUpdatedAt());
-        // default binding 'route key = queue name' works without additional setup
-        rabbitTemplate.convertAndSend(RESERVATION_QUEUE, reservationQueueRequestDto);
+        rabbitTemplate.convertAndSend(RESERVATION_EXCHANGE, RESERVATION_ROUTING_KEY, reservationQueueRequestDto);
     }
 
 }
