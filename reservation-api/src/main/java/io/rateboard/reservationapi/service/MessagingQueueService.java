@@ -15,7 +15,7 @@ public class MessagingQueueService {
     private final RabbitTemplate rabbitTemplate;
 
     /**
-     * Send reservation to RabbiqMQ queue
+     * Send reservation to RabbitMQ queue
      * @param messageId uuid
      * @param request ReservationUserRequestDto represents reservation information
      * @throws AmqpException if failed to send
@@ -26,6 +26,7 @@ public class MessagingQueueService {
         reservationQueueRequestDto.setReservationId(request.getReservationId());
         reservationQueueRequestDto.setPayload(request.getPayload());
         reservationQueueRequestDto.setUpdatedAt(request.getUpdatedAt());
+        // default binding 'route key = queue name' works without additional setup
         rabbitTemplate.convertAndSend(RESERVATION_QUEUE, reservationQueueRequestDto);
     }
 

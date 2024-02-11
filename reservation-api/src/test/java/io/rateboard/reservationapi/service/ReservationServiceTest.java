@@ -9,7 +9,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.amqp.AmqpIOException;
-import org.springframework.data.redis.connection.RedisPipelineException;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -18,7 +17,6 @@ import static io.rateboard.reservationapi.service.MessagingQueueRabbitTest.getRe
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -29,20 +27,16 @@ class ReservationServiceTest {
     @Mock
     private MessagingQueueService messagingQueueService;
 
-    @Mock
-    private MessageStoreService messageStoreService;
 
     @Test
     void sendReservation() throws JsonProcessingException {
         // given
         doNothing().when(messagingQueueService).sendToQueue(any(), any());
-        doNothing().when(messageStoreService).saveMessage(anyString(), any(Instant.class), anyString());
         var request = getReservationUserRequestDto();
         // when
         var result = assertDoesNotThrow(() -> reservationService.sendReservation(request));
         // then
         Assertions.assertNotNull(result.messageId());
-        verify(messageStoreService).saveMessage(anyString(), any(Instant.class), anyString());
         verify(messagingQueueService).sendToQueue(any(), any());
     }
 
@@ -60,21 +54,6 @@ class ReservationServiceTest {
         Assertions.assertNull(result.messageId());
         assertEquals("Failed to process the message", result.errorMessage());
         assertEquals(100500, result.errorCode());
-        verify(messageStoreService, times(0)).saveMessage(anyString(), any(Instant.class), anyString());
     }
 
-    @Test
-    void sendReservationDataAccessException() {
-        // given
-        doThrow(new RedisPipelineException(new Exception())).when(messageStoreService).saveMessage(anyString(), any(Instant.class), anyString());
-        var request = new ReservationUserRequestDto();
-        request.setReservationId("123");
-        request.setPayload(null);
-        request.setUpdatedAt(Instant.ofEpochMilli(1707408491));
-        // when
-        var result = assertDoesNotThrow(() -> reservationService.sendReservation(request));
-        // then
-        Assertions.assertNotNull(result.messageId());
-        verify(messagingQueueService).sendToQueue(any(), any());
-    }
 }
