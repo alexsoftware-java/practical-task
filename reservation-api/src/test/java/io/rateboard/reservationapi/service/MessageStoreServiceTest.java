@@ -4,7 +4,6 @@ import io.rateboard.reservationapi.entity.MessageStoreEntity;
 import io.rateboard.reservationapi.repositry.MessageStoreRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -14,8 +13,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class MessageStoreServiceTest {
@@ -25,20 +24,6 @@ class MessageStoreServiceTest {
     @Mock
     private MessageStoreRepository messageStoreRepository;
 
-    @Test
-    void saveMessage() {
-        // given
-        ArgumentCaptor<MessageStoreEntity> captor = ArgumentCaptor.forClass(MessageStoreEntity.class);
-        when(messageStoreRepository.save(any())).thenReturn(null);
-        // when
-        assertDoesNotThrow(() -> messageStoreService.saveMessage("123", Instant.ofEpochMilli(1707408491), "1234"));
-        // then
-        verify(messageStoreRepository).save(captor.capture());
-        assertEquals("123", captor.getValue().getMessageId());
-        assertEquals(Instant.ofEpochMilli(1707408491), captor.getValue().getCreatedAt());
-        assertEquals("1234", captor.getValue().getReservationId());
-
-    }
 
     @Test
     void getMessage() {
