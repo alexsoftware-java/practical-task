@@ -2,12 +2,28 @@
 
 ## Overview
 
-#### Original task 
+## Original task 
+This task simulates that you are creating a service which receives data from a hotel
+reservation system (PMS). In order to simplify things a bit you can assume that the data
+you get from the hotel is just a simple string. No JSON or XML document etc. is
+necessary. It is not important WHAT you get, this task is more about HOW you deal with
+it.   
+
+In general, you can assume that hotels are sending reservations in real-time. Sometimes
+we get multiple modifications to the same reservation within a few seconds (e.g update
+number of persons, update stay dates, update price). That means it is important to
+process the incoming messages in the right order.   
+
+After you get the message you need
+to process it. This needs to happen asynchronously as the sender won’t wait until we
+are finished. In reality, these messages contain correlation IDs which allow us to notify
+the sender in an asynchronous way whether the message was processed successfully
+or not, but the asynchronous response is out of scope for this task
+
 Create two services. 
 One service contains a REST API that can receive these
 messages/strings. The second service is a processor that will process the incoming
-messages.   
-Both services are connected by a message queue. In your case the
+messages. Both services are connected by a message queue. In your case the
 processor doesn’t need to do anything useful, just log that it was processed.  
 Assume that multiple API services can run in parallel on different hosts, and there is only one
 processor instance. Please also consider the case that the processor could be
@@ -157,8 +173,7 @@ This timestamp allows the `reservation-processor` to maintain message order and 
 ----
 ### Are there any optimisations you see but didn’t implement?
 
-- Async calls to RabbitMQ and MessageStore to reduce response time to PMS.
-- "Race condition" between `api` and `processor` while new entry in MessageStore creates (rabbit sometimes faster than redis). Not a big issue as data saved correctly anyway, can be fixed via distributed lock or via routing copy of messages to 3rd service.
+- Async calls to RabbitMQ to reduce response time to PMS.
 
 ----
 ## Load Testing
