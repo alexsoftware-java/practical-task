@@ -20,10 +20,9 @@ Rel(person, pms, "Booking process")
 Rel_L(hotel, pms, "Creates/check bookings")
 Rel(pms, api, "Send reservation real-time data", "REST", "/api/v1/reservation")
 Rel(pms, api, "Get processing status", "REST", "/api/v1/reservation/${reservationId} /api/v1/reservation/message/${messageId}")
-Rel(api, redis, "Write message meta-data","redis", "messageId, reservationId, receivedAt", $tags="messageStore")
 Rel(api, processor, "Send reservation to be processed", "RabbitMQ", "q.reservation, q.fall-back-reservation")
 Rel(api, redis, "Get message meta-data to provide processing status","redis", "messageId, reservationId, receivedAt, processedAt", $tags="messageStore")
-Rel(processor, redis, "Write processedAt timestamp", "redis", "messageId, processedAt", $tags="messageStore")
+Rel_L(processor, redis, "Write message meta-data", "redis", "messageId, reservationId, receivedAt, processedAt", $tags="messageStore")
 
 SHOW_FLOATING_LEGEND()
 
