@@ -1,4 +1,4 @@
-package io.rateboard.reservationapi;
+package io.rateboard.reservationapi.utils;
 
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;

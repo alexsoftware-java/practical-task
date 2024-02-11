@@ -1,10 +1,7 @@
 package io.rateboard.reservationapi.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.rateboard.reservationapi.dto.ReservationQueueRequestDto;
-import io.rateboard.reservationapi.dto.ReservationUserRequestDto;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -16,7 +13,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 
 import java.time.Instant;
 
-import static io.rateboard.reservationapi.service.MessagingQueueRabbitTest.getReservationUserRequestDto;
+import static io.rateboard.reservationapi.utils.DataGenerator.getReservationUserRequestDto;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.verify;

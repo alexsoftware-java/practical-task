@@ -13,7 +13,7 @@ import org.springframework.amqp.AmqpIOException;
 import java.io.IOException;
 import java.time.Instant;
 
-import static io.rateboard.reservationapi.service.MessagingQueueRabbitTest.getReservationUserRequestDto;
+import static io.rateboard.reservationapi.utils.DataGenerator.getReservationUserRequestDto;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
