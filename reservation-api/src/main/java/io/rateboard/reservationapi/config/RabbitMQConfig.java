@@ -3,10 +3,8 @@ package io.rateboard.reservationapi.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
-import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
-import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -51,13 +49,4 @@ public class RabbitMQConfig {
         return template;
     }
 
-    /**
-     * Force start connection to rabbit to create new queues without waiting for any request
-     * @param cf CachingConnectionFactory
-     * @return ApplicationRunner
-     */
-    @Bean
-    ApplicationRunner runner(ConnectionFactory cf) {
-        return args -> cf.createConnection().close();
-    }
 }
