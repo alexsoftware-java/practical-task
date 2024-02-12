@@ -7,6 +7,8 @@ import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+
 import static io.rateboard.reservationapi.utils.Constants.*;
 
 @Service
@@ -27,6 +29,7 @@ public class MessagingQueueService {
         reservationQueueRequestDto.setReservationId(request.getReservationId());
         reservationQueueRequestDto.setPayload(request.getPayload());
         reservationQueueRequestDto.setUpdatedAt(request.getUpdatedAt());
+        reservationQueueRequestDto.setReceivedAt(Instant.now());
         rabbitTemplate.convertAndSend(RESERVATION_EXCHANGE, RESERVATION_ROUTING_KEY, reservationQueueRequestDto);
     }
 

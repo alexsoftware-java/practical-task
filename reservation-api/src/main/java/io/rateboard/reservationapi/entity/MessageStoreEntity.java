@@ -18,6 +18,6 @@ public class MessageStoreEntity implements Serializable {
     private String messageId;
     @Indexed
     private String reservationId;
-    private Instant createdAt;
+    private Instant receivedAt;
     private Instant processedAt;
 }

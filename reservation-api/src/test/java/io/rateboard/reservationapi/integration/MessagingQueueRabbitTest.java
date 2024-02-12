@@ -1,5 +1,6 @@
 package io.rateboard.reservationapi.integration;
 
+import io.rateboard.reservationapi.dto.ReservationQueueRequestDto;
 import io.rateboard.reservationapi.utils.RabbitTestContainer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,14 +32,8 @@ public class MessagingQueueRabbitTest implements RabbitTestContainer {
 
     @Test
     public void rabbitMQAutoConfigurationTest() throws InterruptedException, IOException {
-        // given
-        var reservationQueueRequestDto = getReservationQueueRequestDto();
-        // when
-        assertDoesNotThrow(() -> rabbitTemplate.convertAndSend(
-                RESERVATION_EXCHANGE,
-                RESERVATION_ROUTING_KEY,
-                reservationQueueRequestDto
-        ));
+        // when (first connection to rabbit happens)
+        rabbitTemplate.convertAndSend("RK", new ReservationQueueRequestDto());
         // then
         assertThat(container.execInContainer("rabbitmqctl", "list_exchanges").getStdout())
                 .containsPattern(RESERVATION_EXCHANGE+"\\s+direct")

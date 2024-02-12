@@ -21,7 +21,7 @@ public interface MessageStoreController {
             @ApiResponse(responseCode = "200", description = "Success", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = """
                     {
                       "messageId": "65109a5f-1a97-45bb-bb6b-037d65d5c914",
-                      "createdAt": "2024-02-08T18:22:07.367233939Z",
+                      "receivedAt": "2024-02-08T18:22:07.367233939Z",
                       "processedAt": "2024-02-08T18:22:07.748190600Z"
                     }""")))})
     @GetMapping("/message/{messageId}")
@@ -36,12 +36,12 @@ public interface MessageStoreController {
                     [
                      {
                         "messageId": "28d922f9-0c42-4570-a93e-4ba5111489de",
-                        "createdAt": "2024-02-08T18:18:06.127756400Z",
+                        "receivedAt": "2024-02-08T18:18:06.127756400Z",
                         "processedAt": "2024-02-08T18:18:06.146148300Z"
                       },
                       {
                         "messageId": "65109a5f-1a97-45bb-bb6b-037d65d5c914",
-                        "createdAt": "2024-02-08T18:22:07.367233939Z",
+                        "receivedAt": "2024-02-08T18:22:07.367233939Z",
                         "processedAt": "2024-02-08T18:22:07.748190600Z"
                       }
                      ]""")))})

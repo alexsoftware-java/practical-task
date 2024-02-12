@@ -30,7 +30,7 @@ public class ReservationProcessingService {
             throw new IllegalArgumentException("Message is invalid (empty messageId)");
         }
         var messageStore = MessageStoreEntity.builder()
-                    .createdAt(Instant.now())
+                    .receivedAt(message.getReceivedAt())
                     .messageId(message.getMessageId())
                     .reservationId(message.getReservationId())
                     .processedAt(Instant.now())
