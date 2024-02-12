@@ -14,6 +14,6 @@ public class MessageStoreDto {
     private String messageId;
     @Schema(description = "Received timestamp", example = "2024-02-08T10:49:28.684878674Z")
     private Instant receivedAt;
-    @Schema(description = "Processed timestamp", example = "null or 2024-02-08T10:49:29.014878674Z")
+    @Schema(description = "Processed timestamp", example = "2024-02-08T10:49:28.685878674Z")
     private Instant processedAt;
 }
