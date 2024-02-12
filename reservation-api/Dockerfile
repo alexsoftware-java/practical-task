@@ -4,6 +4,7 @@ COPY . /builder/.
 RUN gradle clean bootJar
 
 FROM eclipse-temurin:17-jre-alpine
+RUN apk --quiet add curl # for healthcheck
 WORKDIR /app
 COPY --from=builder /builder/build/libs/*.jar /app/reservation-api.jar
 ENTRYPOINT ["java", "-jar", "/app/reservation-api.jar"]
