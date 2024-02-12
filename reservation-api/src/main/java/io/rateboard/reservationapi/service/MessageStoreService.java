@@ -29,7 +29,7 @@ public class MessageStoreService {
         return message.map(messageStoreEntity -> MessageStoreDto.builder()
                 .messageId(messageStoreEntity.getMessageId())
                 .processedAt(messageStoreEntity.getProcessedAt())
-                .createdAt(messageStoreEntity.getCreatedAt())
+                .receivedAt(messageStoreEntity.getReceivedAt())
                 .build());
     }
 
@@ -49,7 +49,7 @@ public class MessageStoreService {
                 result.add(MessageStoreDto.builder()
                         .messageId(message.getMessageId())
                         .processedAt(message.getProcessedAt())
-                        .createdAt(message.getCreatedAt())
+                        .receivedAt(message.getReceivedAt())
                         .build());
             }
         });

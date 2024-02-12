@@ -17,8 +17,8 @@ services:
       - RABBITMQ_DEFAULT_PASS=guest
     healthcheck:
       test: rabbitmq-diagnostics check_port_connectivity
-      interval: 20s
-      timeout: 10s
+      interval: 10s
+      timeout: 5s
       retries: 5
   # Redis to store processing status
   redis:
@@ -34,7 +34,7 @@ services:
       - REDIS_PASSWORD=password
     healthcheck:
       test: redis-cli ping | grep PONG
-      interval: 5s
+      interval: 10s
       timeout: 3s
       retries: 5
   # REST API to stream reservations by sending them to RabbitMQ queue and provide processing result to user
@@ -52,6 +52,7 @@ services:
       - rabbitmq
     restart: always
     environment:
+      - SERVER_PORT=8081
       - SPRING_RABBITMQ_HOST=rabbitmq
       - SPRING_RABBITMQ_USERNAME=guest
       - SPRING_RABBITMQ_PASSWORD=guest
@@ -63,7 +64,12 @@ services:
           condition: service_healthy
       redis:
           condition: service_healthy
-  # Simple processing service, read RabbitMQ queues and save processed timestamp to Redis
+    healthcheck:
+      test: curl --fail --silent localhost:8081/actuator/health | grep UP || exit 1
+      interval: 10s
+      timeout: 3s
+      retries: 5
+  # Simple processing service, read RabbitMQ queues and save meta-data to Redis
   reservation-processor:
     image: reservation-processor
     container_name: reservation-processor-app
@@ -85,6 +91,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      reservation-api:
+        condition: service_healthy
   # nginx to support reservation-api scaling
   nginx:
     image: nginx:latest
@@ -93,6 +101,6 @@ services:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
       reservation-api:
-        condition: service_started
+        condition: service_healthy
     ports:
       - "8080:8080"

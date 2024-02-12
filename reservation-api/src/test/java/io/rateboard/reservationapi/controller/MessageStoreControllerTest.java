@@ -35,7 +35,7 @@ class MessageStoreControllerTest {
         //given
         when(messageStoreService.getMessage(anyString())).thenReturn(Optional.of(MessageStoreDto.builder()
                 .messageId("123")
-                .createdAt(Instant.ofEpochMilli(1707408491))
+                .receivedAt(Instant.ofEpochMilli(1707408491))
                 .processedAt(Instant.ofEpochMilli(1707408492))
                 .build()));
         // when
@@ -45,7 +45,7 @@ class MessageStoreControllerTest {
                 )
                 // then
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().json("{\"messageId\":\"123\",\"createdAt\":\"1970-01-20T18:16:48.491Z\",\"processedAt\":\"1970-01-20T18:16:48.492Z\"}"))
+                .andExpect(MockMvcResultMatchers.content().json("{\"messageId\":\"123\",\"receivedAt\":\"1970-01-20T18:16:48.491Z\",\"processedAt\":\"1970-01-20T18:16:48.492Z\"}"))
                 .andExpect(MockMvcResultMatchers.content().contentType("application/json"));
         verify(messageStoreService).getMessage(anyString());
     }
@@ -70,12 +70,12 @@ class MessageStoreControllerTest {
         when(messageStoreService.getMessagesByReservationId(anyString())).thenReturn(Optional.of(List.of(
                 MessageStoreDto.builder()
                         .messageId("123")
-                        .createdAt(Instant.ofEpochMilli(1707408491))
+                        .receivedAt(Instant.ofEpochMilli(1707408491))
                         .processedAt(Instant.ofEpochMilli(1707408492))
                         .build(),
                 MessageStoreDto.builder()
                         .messageId("124")
-                        .createdAt(Instant.ofEpochMilli(1807408491))
+                        .receivedAt(Instant.ofEpochMilli(1807408491))
                         .processedAt(Instant.ofEpochMilli(1807408492))
                         .build()
         )));
@@ -86,7 +86,7 @@ class MessageStoreControllerTest {
                 )
                 // then
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().json("[{\"messageId\":\"123\",\"createdAt\":\"1970-01-20T18:16:48.491Z\",\"processedAt\":\"1970-01-20T18:16:48.492Z\"},{\"messageId\":\"124\",\"createdAt\":\"1970-01-21T22:03:28.491Z\",\"processedAt\":\"1970-01-21T22:03:28.492Z\"}]"))
+                .andExpect(MockMvcResultMatchers.content().json("[{\"messageId\":\"123\",\"receivedAt\":\"1970-01-20T18:16:48.491Z\",\"processedAt\":\"1970-01-20T18:16:48.492Z\"},{\"messageId\":\"124\",\"receivedAt\":\"1970-01-21T22:03:28.491Z\",\"processedAt\":\"1970-01-21T22:03:28.492Z\"}]"))
                 .andExpect(MockMvcResultMatchers.content().contentType("application/json"));
         verify(messageStoreService).getMessagesByReservationId(anyString());
     }

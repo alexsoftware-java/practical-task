@@ -25,4 +25,8 @@ public class ReservationQueueRequestDto {
      * updatedAt in source system, example = "2024-02-01T10:01:01.301Z"
      */
     Instant updatedAt;
+    /**
+     * receivedAt in API, example = "2024-02-10T10:01:01.401Z"
+     */
+    Instant receivedAt;
 }

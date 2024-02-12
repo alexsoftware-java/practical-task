@@ -28,27 +28,27 @@ class MessageStoreServiceTest {
     @Test
     void getMessage() {
         // given
-        when(messageStoreRepository.findById(anyString())).thenReturn(Optional.of(MessageStoreEntity.builder().messageId("123").createdAt(Instant.ofEpochMilli(1707408491)).reservationId("1234").build()));
+        when(messageStoreRepository.findById(anyString())).thenReturn(Optional.of(MessageStoreEntity.builder().messageId("123").receivedAt(Instant.ofEpochMilli(1707408491)).reservationId("1234").build()));
         // when
         var result = assertDoesNotThrow(() -> messageStoreService.getMessage("123"));
         // then
         assertFalse(result.isEmpty());
         assertEquals("123", result.get().getMessageId());
-        assertEquals(Instant.ofEpochMilli(1707408491), result.get().getCreatedAt());
+        assertEquals(Instant.ofEpochMilli(1707408491), result.get().getReceivedAt());
     }
 
     @Test
     void getMessagesByReservationId() {
         // given
         when(messageStoreRepository.findAllByReservationId(anyString())).thenReturn(List.of(
-                MessageStoreEntity.builder().messageId("123").createdAt(Instant.ofEpochMilli(1707408491)).reservationId("123").build(),
-                MessageStoreEntity.builder().messageId("1234").createdAt(Instant.ofEpochMilli(1807408491)).reservationId("123").build()));
+                MessageStoreEntity.builder().messageId("123").receivedAt(Instant.ofEpochMilli(1707408491)).reservationId("123").build(),
+                MessageStoreEntity.builder().messageId("1234").receivedAt(Instant.ofEpochMilli(1807408491)).reservationId("123").build()));
         // when
         var result = assertDoesNotThrow(() -> messageStoreService.getMessagesByReservationId("123"));
         // then
         assertFalse(result.isEmpty());
         assertEquals(2, result.get().size());
         assertEquals("1234", result.get().get(1).getMessageId());
-        assertEquals(Instant.ofEpochMilli(1707408491), result.get().get(0).getCreatedAt());
+        assertEquals(Instant.ofEpochMilli(1707408491), result.get().get(0).getReceivedAt());
     }
 }
