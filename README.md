@@ -38,11 +38,12 @@ unreachable for some time but you shouldn’t lose messages.
 - Reservation System wants to know the **status of processing** and should be able to get processing details by request.
   As well it should be able to request "all processing history" by some reservationId.
 
-- If message wasn't processed correctly (e.g. due to invalid message structure) such message should be rejected to 
+- If a message wasn't processed correctly (e.g. due to invalid message structure), such message should be rejected to 
   **fall-back queue** to be processed in another way (e.g. reservation status should be marked as "unknown").
 
 
 ### Scheme
+Here you can find the interaction diagram:
 ![ReservationProcessingScheme.png](puml/ReservationProcessingScheme.png)
 
 
@@ -86,7 +87,7 @@ unreachable for some time but you shouldn’t lose messages.
 
 
 **Some example requests:**
-- Create new reservation
+- Create a new reservation
     ```shell
     curl --request POST --location 'http://localhost:8080/api/v1/reservation' \
       --header 'Content-Type: application/json' \
@@ -157,8 +158,8 @@ The choice ultimately depends on specific requirements and priorities, such as r
 
 ----
 ### Do you see any problems with this setup?
-1. **Throughput is limited** as rabbitMQ and redis have pretty standard set-up "from the box" and Spring app wasn't configured for a real "high-load" (threads limit not configured).  
-My assumption was that not high amount of data is expected, but if data stream will be too big and too fast 
+1. **Throughput is limited** as RabbitMQ and Redis have pretty standard set-up "from the box" and Spring app wasn't configured for a real "high-load" (threads limit not configured).  
+My assumption has been that not high amount of data is expected, but if data stream will be too big and too fast 
 (e.g. all reservations from booking.com) for sure deploy(cpu/ram limit) and rabbitMQ/redis configs will require some changes. RabbitMQ standard queue in case of performance issue can be replaced by Rabbit Streams or by Kafka.
 2. **It's not production-ready**. RabbitMQ and Redis reside inside Docker containers, although data folders stores on host machine and won't be lost, 
 in production they should live in cluster on different nodes to have higher fault tolerance level. Spring Cloud Sleuth will be helpful for tracing the requests.  
@@ -174,10 +175,13 @@ This timestamp allows the `reservation-processor` to maintain message order and 
 ### Are there any optimisations you see but didn’t implement?
 
 - Async calls to RabbitMQ to reduce response time to PMS.
+- To avoid collisions, common files for 2 services (RabbitMQ configuration, MessageStore Entity) could be extracted to separate `reservation-model-starter`. 
+- MessageStore design pattern could be implemented in a different way, by adding fanout exchange to RabbiqMQ. The copy of message will be sent to the separate queue as well, 
+it will be helpful to know message status even before the processing of the message.
 
 ----
 ## Load Testing
-Application has been tested with Apache JMeter. Configuration file you can find under ```./JMeter``` folder.  
+Application has been tested with Apache JMeter. You can find the configuration file under ```./JMeter``` folder.  
 
 Test performed locally on Windows 10 PC with Intel i5-8250U CPU(1.80 GHz), 8GB RAM, probably this set up is not fine enough for 5 working containers in docker :)
 
@@ -187,18 +191,17 @@ Results for 500 simultaneous requests are following:
 **GET processing status**: throughput **292RPS**, avg. response time **24ms**, error rate **0%**.  
 All messages were successfully processed by "reservation processor", avg. processing time: **10ms**.
 
+Here you can find the result of load testing:
 ![JMeter_load_result_500.png](JMeter/JMeter_load_result_500.png)
 
 #### Conclusions after load testing:
 There is quite high value of avg. response time for initial POST requests (0.9s).  
-**Solution** If such time is not appropriate for the source system, it is possible to return messageId to the sender immediately after generation and call "sendToQueue" method asynchronously.
+**Solution:** If such time is not appropriate for the source system, it is possible to return messageId to the sender immediately after generation and call "sendToQueue" method asynchronously.
 
 -----
-#### Links:
-https://www.altexsoft.com/blog/hotel-property-management-systems-products-and-features/  
+#### Links which were useful during implementation:
+https://www.altexsoft.com/blog/hotel-property-management-systems-products-and-features/   
 https://www.enterpriseintegrationpatterns.com/patterns/messaging/MessageStore.html  
 https://quix.io/blog/apache-kafka-vs-rabbitmq-comparison#kafka-vs-rabbitmq-features  
 https://www.projectpro.io/compare/rabbitmq-vs-apache-activemq  
 https://stackoverflow.com/questions/21363302/rabbitmq-message-order-of-delivery   
-
-
