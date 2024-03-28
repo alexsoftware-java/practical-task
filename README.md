@@ -1,4 +1,4 @@
-# RateBoard practical task - Reservation API and messaging queues
+# somecompany practical task - Reservation API and messaging queues
 
 ## Overview
 
